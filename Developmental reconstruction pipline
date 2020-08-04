@@ -1,316 +1,168 @@
 
 
-#####################################02/24/2018
-###Calculate relationship for corrected orders
-##S0-->S1.24
-##S1.24-->S1
-##S1-->S2.24
-##S2.48-->S2
-##S2-->S3
+#####################################Session 1
+###Calculate relationship for proximal time points
+##H1-->S0
+##S0-->S1.24(S1_D1)
+##S1.24(S1_D1)-->S1(S1_D2)
+##S1(S1_D2)-->S2.24(S2_D1)
+##S2.24(S2_D1)-->S2.48(S2_D2)
+##S2.48(S2_D2)-->S2(S2_D3)
+##S2(S2_D3)-->S3
+##S3-->S4
+##S4-->S5
+##S5-->S6
+##S6-->S7
+###dge raw data are available at GSE143783
 ###################################
 ###########################3#######
 ##H1-->S0
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/")
 H1_S0.tree.prep<-Tree.build.prepare(dge1=H1.dge,dge2=s0.dge,name1="H1",name2="s0",first.reso=c(0.03,0.03))
 H1_S0.tree.1.ob<-Tree.build.1(H1_S0.tree.prep)
-#saveRDS(H1_S0.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/H1_S0.tree.prep.rds")
-#saveRDS(H1_S0.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/H1_S0.tree.1.ob.rds")
-H1_S0.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/H1_S0.tree.prep.rds")
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/s0_s1.24/second/")
-#S0_S1.24.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(S0_S1.24.tree.prep,S0_S1.24.tree.1.ob,second.reso=c(0.06,0.06))
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/H1_s0/H1_s0/H1_s0/second")
 H1_S0.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(H1_S0.tree.prep,H1_S0.tree.1.ob,second.reso=c(0.06,0.06))
 H1_S0.tree.2nd.primary_0.06.list.patched<-Tree.build.2nd.clustering.patch(H1_S0.tree.2nd.primary_0.06.list,H1_S0.tree.prep,H1_S0.tree.1.ob,singledog.reso=0.06)
 H1_S0.tree.2nd.treemade_0.06.ob<-Tree.build.2nd.treemaking(H1_S0.tree.2nd.primary_0.06.list.patched,second.reso=c(0.06,0.06),upstremename="H1",downstremename="s0",relationtext=1.8)
-saveRDS(H1_S0.tree.2nd.primary_0.06.list.patched,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/H1_S0.tree.2nd.primary_0.06.list.patched.rds")
-saveRDS(H1_S0.tree.2nd.treemade_0.06.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/H1_S0.tree.2nd.treemade_0.06.ob.rds")
-H1_S0.tree.2nd.primary_0.06.list.patched<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/H1_S0.tree.2nd.primary_0.06.list.patched.rds")
-H1_S0.tree.2nd.treemade_0.06.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/H1_S0.tree.2nd.treemade_0.06.ob.rds")
-
-
-S0.pair<-list(data=H1_S0.tree.2nd.primary_0.06.list.patched$H1_0_s0_0$Seurat.list$s0_0@raw.data,info=H1_S0.tree.2nd.primary_0.06.list.patched$H1_0_s0_0$Seurat.list$s0_0@data.info)
-##
-		#Generating publishing figures for S1.24 tSNE
-		S0.tSNE.info<-Tomerge_v2(H1_S0.tree.2nd.primary_0.06.list.patched$H1_0_s0_0$Seurat.list$s0_0@tsne.rot,S0.pair$info)
-		S0.tsne<-ggplot(S0.tSNE.info)+aes(tSNE_1,tSNE_2,color=res.0.06)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+
-		scale_color_manual(values=c("#1B9E77","tomato"))#+guides(colour = guide_legend(override.aes = list(size=10)))
-		S0.tsne<-format2(S0.tsne,S0.tSNE.info,"tSNE_1","tSNE_2",nolegend=F)
 
 
 ##S0-->S1.24
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/")
 S0_S1.24.tree.prep<-Tree.build.prepare(dge1=s0.dge,dge2=s1.24.dge,name1="s0",name2="s1.24",first.reso=c(0.03,0.03))
 S0_S1.24.tree.1.ob<-Tree.build.1(S0_S1.24.tree.prep)
-#saveRDS(S0_S1.24.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S0_S1.24.tree.prep.rds")
-#saveRDS(S0_S1.24.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S0_S1.24.tree.1.ob.rds")
-S0_S1.24.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S0_S1.24.tree.prep.rds")
-S0_S1.24.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S0_S1.24.tree.1.ob.rds")
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/s0_s1.24/second/")
 S0_S1.24.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(S0_S1.24.tree.prep,S0_S1.24.tree.1.ob,second.reso=c(0.06,0.06))
 S0_S1.24.tree.2nd.primary_0.06.list.patched<-Tree.build.2nd.clustering.patch(S0_S1.24.tree.2nd.primary_0.06.list,S0_S1.24.tree.prep,S0_S1.24.tree.1.ob,singledog.reso=0.06)
 S0_S1.24.tree.2nd.treemade_0.06.ob<-Tree.build.2nd.treemaking(S0_S1.24.tree.2nd.primary_0.06.list.patched,second.reso=c(0.06,0.06),upstremename="s0",downstremename="s1.24",relationtext=1.8)
-saveRDS(S0_S1.24.tree.2nd.primary_0.06.list.patched,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S0_S1.24.tree.2nd.primary_0.06.list.patched.rds")
-saveRDS(S0_S1.24.tree.2nd.treemade_0.06.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S0_S1.24.tree.2nd.treemade_0.06.ob.rds")
-S0_S1.24.tree.2nd.primary_0.06.list.patched<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S0_S1.24.tree.2nd.primary_0.06.list.patched.rds")
-S0_S1.24.tree.2nd.treemade_0.06.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S0_S1.24.tree.2nd.treemade_0.06.ob.rds")
 
 
 ##S1.24-->S1
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/")
 S1.24_S1.tree.prep<-Tree.build.prepare(dge1=s1.24.dge,dge2=s1.dge,name1="s1.24",name2="s1",first.reso=c(0.03,0.03))
 S1.24_S1.tree.1.ob<-Tree.build.1(S1.24_S1.tree.prep)
-#saveRDS(S1.24_S1.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S1.24_S1.tree.prep.rds")
-#saveRDS(S1.24_S1.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S1.24_S1.tree.1.ob.rds")
-S1.24_S1.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S1.24_S1.tree.prep.rds")
-S1.24_S1.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S1.24_S1.tree.1.ob.rds")
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/s1.24_s1/second/")
 S1.24_S1.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(S1.24_S1.tree.prep,S1.24_S1.tree.1.ob,second.reso=c(0.06,0.06))
 S1.24_S1.tree.2nd.primary_0.06.list.patched<-Tree.build.2nd.clustering.patch(S1.24_S1.tree.2nd.primary_0.06.list,S1.24_S1.tree.prep,S1.24_S1.tree.1.ob,singledog.reso=0.06)
-
 S1.24_S1.tree.2nd.treemade_0.06.ob<-Tree.build.2nd.treemaking(S1.24_S1.tree.2nd.primary_0.06.list.patched,second.reso=c(0.06,0.06),upstremename="s1.24",downstremename="s1_",relationtext=1.8)
 
 
 #S1-->S2.24
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/")
 S1_S2.24.tree.prep<-Tree.build.prepare(dge1=s1.dge,dge2=s2.24.dge,name1="s1",name2="s2.24",first.reso=c(0.03,0.05))
 S1.24_S1.tree.2nd.primary_0.06.list.patchedS1_S2.24.tree.1.ob<-Tree.build.1(S1_S2.24.tree.prep)
-#saveRDS(S1_S2.24.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S1_S2.24.tree.prep.rds")
-#saveRDS(S1_S2.24.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S1_S2.24.tree.1.ob.rds")
-S1_S2.24.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S1_S2.24.tree.prep.rds")
-S1_S2.24.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S1_S2.24.tree.1.ob.rds")
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/s1_s2.24/second/")
 S1_S2.24.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(S1_S2.24.tree.prep,S1_S2.24.tree.1.ob,second.reso=c(0.06,0.1))
-
-
-##S2.48-->S2
-
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/")
-S2.48_S2.all.tree.prep<-Tree.build.prepare(dge1=s2.48.dge,dge2=s2.all.dge,name1="s2.48",name2="s2.all",first.reso=c(0.03,0.03))
-S2.48_S2.all.tree.1.ob<-Tree.build.1(S2.48_S2.all.tree.prep)
-#saveRDS(S2.48_S2.all.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.48_S2.all.tree.prep.rds")
-#saveRDS(S2.48_S2.all.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.48_S2.all.tree.1.ob.rds")
-S2.48_S2.all.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.48_S2.all.tree.prep.rds")
-S2.48_S2.all.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.48_S2.all.tree.1.ob.rds")
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/s2.48_s2.all/second/")
-S2.48_S2.all.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(S2.48_S2.all.tree.prep,S2.48_S2.all.tree.1.ob,second.reso=c(0.03,0.06))
-S2.48_S2.all.tree.2nd.primary_0.06.list.patched<-Tree.build.2nd.clustering.patch(S2.48_S2.all.tree.2nd.primary_0.06.list,S2.48_S2.all.tree.prep,S2.48_S2.all.tree.1.ob,singledog.reso=0.06)
-S2.48_S2.all.tree.2nd.treemade_0.06.ob<-Tree.build.2nd.treemaking(S2.48_S2.all.tree.2nd.primary_0.06.list.patched,second.reso=c(0.03,0.06),upstremename="s2.48",downstremename="s2.all",relationtext=1.8)
-saveRDS(S2.48_S2.all.tree.2nd.primary_0.06.list.patched,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.48_S2.all.tree.2nd.primary_0.06.list.patched.rds")
-saveRDS(S2.48_S2.all.tree.2nd.treemade_0.06.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.48_S2.all.tree.2nd.treemade_0.06.ob.rds")
-S2.48_S2.all.tree.2nd.primary_0.06.list.patched<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.48_S2.all.tree.2nd.primary_0.06.list.patched.rds")
-S2.48_S2.all.tree.2nd.treemade_0.06.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.48_S2.all.tree.2nd.treemade_0.06.ob.rds")
-
-
-##S2-->S3
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/")
-S2.all_S3.all.tree.prep<-Tree.build.prepare(dge1=s2.all.dge,dge2=s3.all.dge,name1="s2.all",name2="s3.all",first.reso=c(0.03,0.03))
-S2.all_S3.all.tree.1.ob<-Tree.build.1(S2.all_S3.all.tree.prep)
-#saveRDS(S2.all_S3.all.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.all_S3.all.tree.prep.rds")
-#saveRDS(S2.all_S3.all.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.all_S3.all.tree.1.ob.rds")
-S2.all_S3.all.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.all_S3.all.tree.prep.rds")
-S2.all_S3.all.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.all_S3.all.tree.1.ob.rds")
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/trees.neworder/s2.all_s3.all/second/")
-S2.all_S3.all.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(S2.all_S3.all.tree.prep,S2.all_S3.all.tree.1.ob,second.reso=c(0.06,0.06))
-S2.all_S3.all.tree.2nd.primary_0.06.list.patched<-Tree.build.2nd.clustering.patch(S2.all_S3.all.tree.2nd.primary_0.06.list,S2.all_S3.all.tree.prep,S2.all_S3.all.tree.1.ob,singledog.reso=0.06)
-S2.all_S3.all.tree.2nd.treemade_0.06.ob<-Tree.build.2nd.treemaking(S2.all_S3.all.tree.2nd.primary_0.06.list.patched,second.reso=c(0.06,0.06),upstremename="s2.all",downstremename="s3.all",relationtext=1.8)
-saveRDS(S2.all_S3.all.tree.2nd.primary_0.06.list.patched,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.all_S3.all.tree.2nd.primary_0.06.list.patched.rds")
-saveRDS(S2.all_S3.all.tree.2nd.treemade_0.06.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.all_S3.all.tree.2nd.treemade_0.06.ob.rds")
-S2.all_S3.all.tree.2nd.primary_0.06.list.patched<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.all_S3.all.tree.2nd.primary_0.06.list.patched.rds")
-
-S2.all_S3.all.tree.2nd.treemade_0.06.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.all_S3.all.tree.2nd.treemade_0.06.ob.rds")
-
-
-
-
-
+S1_S2.24.tree.2nd.primary_0.06.list.patched<-Tree.build.2nd.clustering.patch(S1_S2.24.tree.2nd.primary_0.06.list,S1_S2.24.tree.prep,S1_S2.24.tree.1.ob,singledog.reso=0.06)
+S1_S2.24.tree.2nd.treemade_0.06.ob<-Tree.build.2nd.treemaking(S1_S2.24.tree.2nd.primary_0.06.list.patched,second.reso=c(0.06,0.1),upstremename="s1",downstremename="s2.24",relationtext=1.8)
 
 
 # S2.24.all -->S2.48.all
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/s2.24_s2.48")
 S2.24_S2.48.tree.prep<-Tree.build.prepare(dge1=s2.24.dge,dge2=s2.48.dge,name1="s2.24",name2="s2.48",first.reso=c(0.05,0.03))  ## This is a  primary object for first layer clustering under this resolution
 S2.24_S2.48.tree.1.ob<-Tree.build.1(S2.24_S2.48.tree.prep)   # This is a list of tree making result for the first layer clustering
-#saveRDS(S2.24_S2.48.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.prep.RDS")
-#saveRDS(S2.24_S2.48.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.1.ob.RDS")
-S2.24_S2.48.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.prep.RDS")
-S2.24_S2.48.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.1.ob.RDS")
-#S2.24_S2.48.tree.2nd.primary.list<-Tree.build.2nd.clustering(S2.24_S2.48.tree.prep,S2.24_S2.48.tree.1.ob,second.reso=c(0.3,0.3))
-#S2.24_S2.48.tree.2nd.treemade.ob<-Tree.build.2nd.treemaking(S2.24_S2.48.tree.2nd.primary.list)
-#saveRDS(S2.24_S2.48.tree.2nd.primary.list,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.2nd.primary.list.RDS")
-#saveRDS(S2.24_S2.48.tree.2nd.treemade.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.2nd.treemade.ob.RDS")
-#S2.24_S2.48.tree.2nd.primary.list<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.2nd.primary.list.RDS")
-#S2.24_S2.48.tree.2nd.treemade.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.2nd.treemade.ob.RDS")
-#second_0.06S2.24_S2.48.tree.2nd.primary_0.06_0.03.list.patched
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/s2.24_s2.48/")
 S2.24_S2.48.tree.2nd.primary_0.06_0.03.list<-Tree.build.2nd.clustering(S2.24_S2.48.tree.prep,S2.24_S2.48.tree.1.ob,second.reso=c(0.1,0.03))
 S2.24_S2.48.tree.2nd.primary_0.06_0.03.list.patched<-Tree.build.2nd.clustering.patch(S2.24_S2.48.tree.2nd.primary_0.06_0.03.list,S2.24_S2.48.tree.prep,S2.24_S2.48.tree.1.ob,singledog.reso=0.06)
 S2.24_S2.48.tree.2nd.treemade_0.06_0.03.ob<-Tree.build.2nd.treemaking(S2.24_S2.48.tree.2nd.primary_0.06_0.03.list.patched,second.reso=c(0.06,0.03),upstremename="s2.24",downstremename="s2.48")
-#saveRDS(S2.24_S2.48.tree.2nd.primary_0.06_0.03.list.patched,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.2nd.primary_0.06_0.03.list.patched.RDS")
-#saveRDS(S2.24_S2.48.tree.2nd.treemade_0.06_0.03.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.2nd.treemade_0.06_0.03.ob")
-
-S2.24_S2.48.tree.2nd.treemade_0.06_0.03.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.2nd.treemade_0.06_0.03.ob")
-S2.24_S2.48.tree.2nd.primary_0.06_0.03.list.patched<-saveRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.2nd.primary_0.06_0.03.list.patched.RDS")
-S2.24_S2.48.tree.2nd.primary_0.06_0.03.list.patched<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S2.24_S2.48.tree.2nd.primary_0.06_0.03.list.patched.RDS")
 
 
-
-pdf("S2.24_S2.48.combo.pdf",height=7,width=21)
-comprehensive.plot(S2.24_S2.48.tree.prep,S2.24_S2.48.tree.1.ob,S2.24_S2.48.tree.2nd.treemade_0.06_0.03.ob)
-dev.off()
-
-#Generating publishing figures for S2.48 tSNE
-		S2.48.tSNE.info<-Tomerge_v2(S2.24_S2.48.tree.prep$primary.total$Seurat.list$s2.48@tsne.rot,rbind(S2.48_0_0.pair$info,S2.48_0_1.pair$info,S2.48_1_0.pair$info))
-		S2.48.tsne<-ggplot(S2.48.tSNE.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Dark2")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S2.48.tsne<-format2(S2.48.tsne,S2.48.tSNE.info,"tSNE_1","tSNE_2",nolegend=F)
+##S2.48-->S2
+S2.48_S2.all.tree.prep<-Tree.build.prepare(dge1=s2.48.dge,dge2=s2.all.dge,name1="s2.48",name2="s2.all",first.reso=c(0.03,0.03))
+S2.48_S2.all.tree.1.ob<-Tree.build.1(S2.48_S2.all.tree.prep)
+S2.48_S2.all.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(S2.48_S2.all.tree.prep,S2.48_S2.all.tree.1.ob,second.reso=c(0.03,0.06))
+S2.48_S2.all.tree.2nd.primary_0.06.list.patched<-Tree.build.2nd.clustering.patch(S2.48_S2.all.tree.2nd.primary_0.06.list,S2.48_S2.all.tree.prep,S2.48_S2.all.tree.1.ob,singledog.reso=0.06)
+S2.48_S2.all.tree.2nd.treemade_0.06.ob<-Tree.build.2nd.treemaking(S2.48_S2.all.tree.2nd.primary_0.06.list.patched,second.reso=c(0.03,0.06),upstremename="s2.48",downstremename="s2.all",relationtext=1.8)
 
 
+##S2-->S3
+S2.all_S3.all.tree.prep<-Tree.build.prepare(dge1=s2.all.dge,dge2=s3.all.dge,name1="s2.all",name2="s3.all",first.reso=c(0.03,0.03))
+S2.all_S3.all.tree.1.ob<-Tree.build.1(S2.all_S3.all.tree.prep)
+S2.all_S3.all.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(S2.all_S3.all.tree.prep,S2.all_S3.all.tree.1.ob,second.reso=c(0.06,0.06))
+S2.all_S3.all.tree.2nd.primary_0.06.list.patched<-Tree.build.2nd.clustering.patch(S2.all_S3.all.tree.2nd.primary_0.06.list,S2.all_S3.all.tree.prep,S2.all_S3.all.tree.1.ob,singledog.reso=0.06)
+S2.all_S3.all.tree.2nd.treemade_0.06.ob<-Tree.build.2nd.treemaking(S2.all_S3.all.tree.2nd.primary_0.06.list.patched,second.reso=c(0.06,0.06),upstremename="s2.all",downstremename="s3.all",relationtext=1.8)
+.2nd.primary_0.06.list.patched.rds")
 
 
 #S3.all -->S4.B
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis")
 S3.all_S4.B.tree.prep<-Tree.build.prepare(dge1=s3.all.dge,dge2=s4.B.dge,name1="s3.all",name2="s4.B",first.reso=c(0.03,0.015))
 S3.all_S4.B.tree.1.ob<-Tree.build.1(S3.all_S4.B.tree.prep)
-#saveRDS(S3.all_S4.B.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S3.all_S4.B.tree.prep.RDS")
-#saveRDS(S3.all_S4.B.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S3.all_S4.B.tree.1.ob.RDS")
-S3.all_S4.B.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S3.all_S4.B.tree.prep.RDS")
-S3.all_S4.B.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S3.all_S4.B.tree.1.ob.RDS")
-#second_0.06, a.2
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/s3.all_s4.B")
 S3.all_S4.B.tree.2nd.primary_0.06_0.3.list<-Tree.build.2nd.clustering(S3.all_S4.B.tree.prep,S3.all_S4.B.tree.1.ob,second.reso=c(0.06,0.3))
 S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched<-Tree.build.2nd.clustering.patch(S3.all_S4.B.tree.2nd.primary_0.06_0.3.list,S3.all_S4.B.tree.prep,S3.all_S4.B.tree.1.ob,singledog.reso=0.3)
 S3.all_S4.B.tree.2nd.treemade_0.06_0.3.ob<-Tree.build.2nd.treemaking(S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched,second.reso=c(0.06,0.3),singledog.reso=0.3,upstremename="s3.all",downstremename="s4.B")
-#saveRDS(S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched.RDS")
-#saveRDS(S3.all_S4.B.tree.2nd.treemade_0.06_0.3.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S3.all_S4.B.tree.2nd.treemade_0.06_0.3.ob.RDS")
-S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched.RDS")
-S3.all_S4.B.tree.2nd.treemade_0.06_0.3.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S3.all_S4.B.tree.2nd.treemade_0.06_0.3.ob.RDS")
-#Generating publishing figures for S2.48 tSNE
-#		S4.tsne.info<-Tomerge(S3.all_S4.B.tree.prep$primary.total$Seurat.list$s4.B@tsne.rot,S3.all_S4.B.tree.prep$primary.total$Seurat.list$s4.B@data.info)
-#		S4.tsne<-ggplot(S4.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Dark2")+guides(colour = guide_legend(override.aes = list(size=10)))
-#		S4.tsne<-format2(S4_1st.tsne,S4.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-#		S4_0.tsne.info<-Tomerge(S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched$s3.all_0_s4.B_0$Seurat.list$s4.B_0@tsne.rot,S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched$s3.all_0_s4.B_0$Seurat.list$s4.B_0@data.info)
-#		S4_0.tsne<-ggplot(S4_0.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Set1")+guides(colour = guide_legend(override.aes = list(size=10)))
-#		S4_0.tsne<-format2(S4_0.tsne,S4_0.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-#		S4_1.tsne.info<-Tomerge(S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched$singledog.singledog.seurat.ob@tsne.rot,S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched$singledog.singledog.seurat.ob@data.info)
-#		S4_1.tsne<-ggplot(S4_1.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Dark2")+guides(colour = guide_legend(override.aes = list(size=10)))
-#		S4_1.tsne<-format2(S4_1.tsne,S4_1.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-S4.tsne.info<-rbind(S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched$s3.all_0_s4.B_0$Seurat.list$s4.B_0@data.info,S3.all_S4.B.tree.2nd.primary_0.06_0.3.list.patched$singledog.singledog.seurat.ob@data.info) %>% cbind(.,newname=paste(.[,6],.[,5],sep="_")) %>%Tomerge_v2(S3.all_S4.B.tree.prep$primary.total$Seurat.list$s4.B@tsne.rot,.)
-S4.tsne<-ggplot(S4.tsne.info)+aes(tSNE_1,tSNE_2,color=newname)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Dark2")+guides(colour = guide_legend(override.aes = list(size=10)))
-
-
-
-S4.tsne<-format2(S4.tsne,S4.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
 
 
 #S4.B-->S5.all
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/New.S4.B_S5.all")
 S4.B_S5.all.tree.prep<-Tree.build.prepare(dge1=s4.B.dge,dge2=s5.all.dge,name1="s4.B",name2="s5.all",first.reso=c(0.015,0.03))
 S4.B_S5.all.tree.1.ob<-Tree.build.1(S4.B_S5.all.tree.prep)
-#saveRDS(S4.B_S5.all.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S4.B_S5.all.tree.prep.RDS")
-#saveRDS(S4.B_S5.all.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S4.B_S5.all.tree.1.ob.RDS")
-S4.B_S5.all.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S4.B_S5.all.tree.prep.RDS")
-S4.B_S5.all.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S4.B_S5.all.tree.1.ob.RDS")
-#second_0.06, a.2
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/New.S4.B_S5.all/s4.B_s5.all")
 S4.B_S5.all.tree.2nd.primary_0.06_0.3.list<-Tree.build.2nd.clustering(S4.B_S5.all.tree.prep,S4.B_S5.all.tree.1.ob,second.reso=c(0.3,0.3))
 S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched<-Tree.build.2nd.clustering.patch(S4.B_S5.all.tree.2nd.primary_0.06_0.3.list,S4.B_S5.all.tree.prep,S4.B_S5.all.tree.1.ob,singledog.reso=0.3)
-
-
 S4.B_S5.all.tree.2nd.treemade_0.06_0.3.ob<-Tree.build.2nd.treemaking(S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched,second.reso=c(0.3,0.3),singledog.reso=0.3,upstremename="s4.B",downstremename="s5.all")
-
-#saveRDS(S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched.RDS")
-#saveRDS(S4.B_S5.all.tree.2nd.treemade_0.06_0.3.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched.RDS")
-
-S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched.RDS")
-S4.B_S5.all.tree.2nd.treemade_0.06_0.3.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched.RDS")
-
-
-		S5.tsne.info<-Tomerge(S4.B_S5.all.tree.prep$primary.total$Seurat.list$s5.all@tsne.rot,S4.B_S5.all.tree.prep$primary.total$Seurat.list$s5.all@data.info)
-		S5.tsne<-ggplot(S5.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Set1")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S5.tsne<-format2(S5.tsne,S5.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-		S5_1.tsne.info<-Tomerge(S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched$s4.B_1_s5.all_1$Seurat.list$s5.all_1@tsne.rot,S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched$s4.B_1_s5.all_1$Seurat.list$s5.all_1@data.info)
-		S5_1.tsne<-ggplot(S5_1.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Dark2")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S5_1.tsne<-format2(S5_1.tsne,S5_1.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-		S5_0.tsne.info<-Tomerge(S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched$s4.B_0_s5.all_0$Seurat.list$s5.all_0@tsne.rot,S4.B_S5.all.tree.2nd.primary_0.06_0.3.list.patched$s4.B_0_s5.all_0$Seurat.list$s5.all_0@data.info)
-		S5_0.tsne<-ggplot(S5_0.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Set1")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S5_0.tsne<-format2(S5_0.tsne,S5_0.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-
-
 
 
 #S5.all-->S6.A
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/New.S5.all_S6.A")
 S5.all_S6.A.tree.prep<-Tree.build.prepare(dge1=s5.all.dge,dge2=s6.A.dge,name1="s5.all",name2="s6.A",first.reso=c(0.03,0.03))
 S5.all_S6.A.tree.1.ob<-Tree.build.1(S5.all_S6.A.tree.prep)
-S6.A_S7.B.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S6.A_S7.B.tree.1.ob.RDS")ild.1(S5.all_S6.A.tree.prep)
-#saveRDS(S5.all_S6.A.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S5.all_S6.A.tree.prep.RDS")
-#saveRDS(S5.all_S6.A.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S5.all_S6.A.tree.1.ob.RDS")
-S5.all_S6.A.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S5.all_S6.A.tree.prep.RDS")
-S5.all_S6.A.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S5.all_S6.A.tree.1.ob.RDS")
 S5.all_S6.A.tree.2nd.primary_0.3_0.3.list<-Tree.build.2nd.clustering(S5.all_S6.A.tree.prep,S5.all_S6.A.tree.1.ob,second.reso=c(0.3,0.3))
 S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched<-Tree.build.2nd.clustering.patch(S5.all_S6.A.tree.2nd.primary_0.3_0.3.list,S5.all_S6.A.tree.prep,S5.all_S6.A.tree.1.ob,singledog.reso=0.06)
 S5.all_S6.A.tree.2nd.treemade_0.3_0.3.ob<-Tree.build.2nd.treemaking(S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched,second.reso=c(0.3,0.3),upstremename="s5.all",downstremename="s6.A")
-#saveRDS(S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched.RDS")
-#saveRDS(S5.all_S6.A.tree.2nd.treemade_0.3_0.3.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S5.all_S6.A.tree.2nd.treemade_0.3_0.3.ob")
-S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched.RDS")
-S5.all_S6.A.tree.2nd.treemade_0.3_0.3.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S5.all_S6.A.tree.2nd.treemade_0.3_0.3.ob")
-
-
-		S6.tsne.info<-Tomerge(S5.all_S6.A.tree.prep$primary.total$Seurat.list$s6.A@tsne.rot,S5.all_S6.A.tree.prep$primary.total$Seurat.list$s6.A@data.info)
-		S6.tsne<-ggplot(S6.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Set1")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S6.tsne<-format2(S6.tsne,S6.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-		S6_0.tsne.info<-Tomerge(S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched$s5.all_1_s6.A_0$Seurat.list$s6.A_0@tsne.rot,S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched$s5.all_1_s6.A_0$Seurat.list$s6.A_0@data.info)
-		S6_0.tsne<-ggplot(S6_0.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Dark2")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S6_0.tsne<-format2(S6_0.tsne,S6_0.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-
-		S6_1.tsne.info<-Tomerge(S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched$s5.all_0_s6.A_1$Seurat.list$s6.A_1@tsne.rot,S5.all_S6.A.tree.2nd.primary_0.3_0.3.list.patched$s5.all_0_s6.A_1$Seurat.list$s6.A_1@data.info)
-		S6_1.tsne<-ggplot(S6_1.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Set1")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S6_1.tsne<-format2(S6_1.tsne,S6_1.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-
 
 
 #S6.A -->S7.B
-setwd("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/trajectory.analysis/New.S6A_S7B")
 S6.A_S7.B.tree.prep<-Tree.build.prepare(dge1=s6.A.dge,dge2=s7.B.dge,name1="s6.A",name2="s7.B",first.reso=c(0.03,0.03))
 S6.A_S7.B.tree.1.ob<-Tree.build.1(S6.A_S7.B.tree.prep)
-#saveRDS(S6.A_S7.B.tree.prep,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S6.A_S7.B.tree.prep.RDS")
-#saveRDS(S6.A_S7.B.tree.1.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S6.A_S7.B.tree.1.ob.RDS")
-S6.A_S7.B.tree.prep<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S6.A_S7.B.tree.prep.RDS")
-S6.A_S7.B.tree.1.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S6.A_S7.B.tree.1.ob.RDS")
 S6.A_S7.B.tree.2nd.primary_0.3_0.3.list<-Tree.build.2nd.clustering(S6.A_S7.B.tree.prep,S6.A_S7.B.tree.1.ob,second.reso=c(0.3,0.3))
 S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched<-Tree.build.2nd.clustering.patch(S6.A_S7.B.tree.2nd.primary_0.3_0.3.list,S5.all_S6.A.tree.prep,S6.A_S7.B.tree.1.ob,singledog.reso=0.06)
 S6.A_S7.B.tree.2nd.treemade_0.3_0.3.ob<-Tree.build.2nd.treemaking(S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched,second.reso=c(0.3,0.3),upstremename="s6.A",downstremename="s7.B")
-#saveRDS(S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched")
-#saveRDS(S6.A_S7.B.tree.2nd.treemade_0.3_0.3.ob,"/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S6.A_S7.B.tree.2nd.treemade_0.3_0.3.ob")
-S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched")
-S6.A_S7.B.tree.2nd.treemade_0.3_0.3.ob<-readRDS("/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/S6.A_S7.B.tree.2nd.treemade_0.3_0.3.ob")
-
-
-
-		S7.tsne.info<-Tomerge(S6.A_S7.B.tree.prep$primary.total$Seurat.list$s7.B@tsne.rot,S6.A_S7.B.tree.prep$primary.total$Seurat.list$s7.B@data.info)
-		S7.tsne<-ggplot(S7.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Set1")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S7.tsne<-format2(S7.tsne,S7.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-
-		S7_0.tsne.info<-Tomerge(S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched$s6.A_1_s7.B_0$Seurat.list$s7.B_0@tsne.rot,S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched$s6.A_1_s7.B_0$Seurat.list$s7.B_0@data.info)
-		S7_0.tsne<-ggplot(S7_0.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Set1")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S7_0.tsne<-format2(S7_0.tsne,S7_0.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
-
-
-		S7_1.tsne.info<-Tomerge(S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched$s6.A_0_s7.B_1$Seurat.list$s7.B_1@tsne.rot,S6.A_S7.B.tree.2nd.primary_0.3_0.3.list.patched$s6.A_0_s7.B_1$Seurat.list$s7.B_1@data.info)
-		S7_1.tsne<-ggplot(S7_1.tsne.info)+aes(tSNE_1,tSNE_2,color=Sample.2nd)+geom_point(size=0.5)+theme(axis.ticks=element_blank(),axis.text=element_blank(),legend.title=element_blank())+scale_color_brewer(palette="Dark2")+guides(colour = guide_legend(override.aes = list(size=10)))
-		S7_1.tsne<-format2(S7_1.tsne,S7_1.tsne.info,"tSNE_1","tSNE_2",nolegend=F)
 
 
 
 
-save(S1.24.tSNE.info,S1.24.tsne,S2.tSNE.info,S2.tsne,S2.24.tSNE.info,S2.24.tsne,S2.48.tSNE.info,S2.48.tsne,S3.tSNE.info,S3.tsne,S4.tsne.info,S4.tsne,S4_0.tsne.info,S4_0.tsne,S4_1.tsne.info,S4_1.tsne,
-S5.tsne.info,S5.tsne,S5_1.tsne.info,S5_1.tsne,S5_0.tsne.info,S5_0.tsne,S6.tsne.info,S6.tsne,S6_0.tsne.info,S6_0.tsne,S6_1.tsne.info,S6_1.tsne,S7.tsne.info,S7.tsne,S7_0.tsne.info,S7_0.tsne,S7_1.tsne.info,
-S7_1.tsne,file="/mnt/rstor/genetics/JinLab/cxw486/Dropseq/Entrance/Esderived/Esdrived_DGE/AttemptFrom17.8.28/RDS/Clusters.tSNEs.Rdata")
+#####################################Session 2
+### Generate the network(graph) that connect all populations
+## The input is the objects calculated above
+##H1_S0.tree.2nd.treemade_0.06.ob
+##S0_S1.24.tree.2nd.treemade_0.06.ob
+##S1.24_S1.tree.2nd.treemade_0.08.ob
+##S1_S2.24.tree.2nd.treemade_0.08.ob
+##S2.24_S2.48.tree.2nd.treemade_0.06_0.03.ob
+##S2.48_S2.all.tree.2nd.treemade_0.06.ob
+##S2.all_S3.all.tree.2nd.treemade_0.06.ob
+##S3.all_S4.B.tree.2nd.treemade_0.06_0.3.ob
+##S4.B_S5.all.tree.2nd.treemade_0.06_0.3.ob
+##S5.all_S6.A.tree.2nd.treemade_0.3_0.3.ob
+##S6.A_S7.B.tree.2nd.treemade_0.3_0.3.ob
+###################################
+###########################3#######
+objlist<-list(H1_S0.tree.2nd.treemade_0.06.ob,S0_S1.24.tree.2nd.treemade_0.06.ob,S1.24_S1.tree.2nd.treemade_0.08.ob,S1_S2.24.tree.2nd.treemade_0.08.ob,S2.24_S2.48.tree.2nd.treemade_0.06_0.03.ob,
+S2.48_S2.all.tree.2nd.treemade_0.06.ob,S2.all_S3.all.tree.2nd.treemade_0.06.ob,S3.all_S4.B.tree.2nd.treemade_0.06_0.3.ob,S4.B_S5.all.tree.2nd.treemade_0.06_0.3.ob,
+S5.all_S6.A.tree.2nd.treemade_0.3_0.3.ob,S6.A_S7.B.tree.2nd.treemade_0.3_0.3.ob)
+
+all.nodes<-c()
+all.edges<-c()
+n=1
+for (subtree in objlist)
+{
+	print(n)
+	n=n+1
+
+	for (sublineage in names(subtree$deeper.relation.plots.lst))
+	{
+
+	edge1<-subtree$deeper.relation.plots.lst[[sublineage]]$matrix.advance %>% .$segData.2_1.ordered %>% as.data.frame() %>% .[,c(1,2)] %>% cbind(.,strength=rep("strong",nrow(.)))
+	if(!is.null(subtree$deeper.relation.plots.lst[[sublineage]]$matrix.advance$segData.2_1.internal.ordered))
+	{
+		edge2<-subtree$deeper.relation.plots.lst[[sublineage]]$matrix.advance %>% .$segData.2_1.internal.ordered %>% as.data.frame() %>% .[,c(1,2)] %>% cbind(.,strength=rep("strong",nrow(.)))
+	}else
+	{
+		edge2<-c()
+	}
+	if(!is.null(subtree$deeper.relation.plots.lst[[sublineage]]$matrix.advance$segData.2_1.weak.ordered))
+	{
+	edge3<-subtree$deeper.relation.plots.lst[[sublineage]]$matrix.advance %>% .$segData.2_1.weak.ordered %>% as.data.frame() %>% .[,c(1,2)] %>% cbind(.,strength=rep("week",nrow(.)))
+	}else
+	{
+		edge3<-c()
+	}
+	edges.cur<-rbind(edge1,edge2,edge3)
+	nodes.stage.cur<-c(as.character(edges.cur[,1]),as.character(edges.cur[,2])) %>% strsplit(.,"_") %>% lapply(.,function(x){x[1]}) %>% unlist
+	nodes.cur<-c(as.character(edges.cur[,1]),as.character(edges.cur[,2])) %>% data.frame(nodes=.,stage=nodes.stage.cur)  %>% .[!duplicated(.),]
+	all.nodes<-rbind(all.nodes,nodes.cur)
+	all.edges<-rbind(all.edges,edges.cur)
+	}
+}
+allcluster.dist.mtx<-myddply.center(hESCdiff.beta.allcell.pca.withinfo,"Sample")
+all.edges<-cbind(all.edges,distance=apply(all.edges,1,function(x){allcluster.dist.mtx$centers.dist.mtx[as.character(x[1]),as.character(x[2])]}))
+all.nodes<-all.nodes[!duplicated(all.nodes),]
+hESCdiff.beta.allcell.mygraph<-makelayout(nodes.data=all.nodes,edges.data=all.edges,manu.xaxis=nametransform,byy="finalname")
+
+
