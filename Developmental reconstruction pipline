@@ -1,5 +1,3 @@
-
-
 #####################################Session 1
 ###Calculate relationship for proximal time points
 ##H1-->S0
@@ -70,7 +68,7 @@ S2.all_S3.all.tree.1.ob<-Tree.build.1(S2.all_S3.all.tree.prep)
 S2.all_S3.all.tree.2nd.primary_0.06.list<-Tree.build.2nd.clustering(S2.all_S3.all.tree.prep,S2.all_S3.all.tree.1.ob,second.reso=c(0.06,0.06))
 S2.all_S3.all.tree.2nd.primary_0.06.list.patched<-Tree.build.2nd.clustering.patch(S2.all_S3.all.tree.2nd.primary_0.06.list,S2.all_S3.all.tree.prep,S2.all_S3.all.tree.1.ob,singledog.reso=0.06)
 S2.all_S3.all.tree.2nd.treemade_0.06.ob<-Tree.build.2nd.treemaking(S2.all_S3.all.tree.2nd.primary_0.06.list.patched,second.reso=c(0.06,0.06),upstremename="s2.all",downstremename="s3.all",relationtext=1.8)
-.2nd.primary_0.06.list.patched.rds")
+
 
 
 #S3.all -->S4.B
@@ -166,3 +164,50 @@ all.nodes<-all.nodes[!duplicated(all.nodes),]
 hESCdiff.beta.allcell.mygraph<-makelayout(nodes.data=all.nodes,edges.data=all.edges,manu.xaxis=nametransform,byy="finalname")
 
 
+
+#####################################Session 3
+### Visulizations and gene module clustering
+###################################
+###########################3#######
+## hESCdiff.beta.allcell.pca.withinfo is a pca matrix for all cells
+all.edges.bin.data.normed_UMI.list<-Get.pseudotime.byStage.pairing(pcawithinfo=hESCdiff.beta.allcell.pca.withinfo,edges.data=all.edges,object=hESCdiff.beta.allcell.seurate,PCnumber=10)
+##  Map all the bin data onto the tree plot
+all.edge.edges.bin.data.withTreepos<-c()
+for (theedge in names(all.edges.bin.data.normed_UMI.list))
+{
+	bins<-all.edges.bin.data.normed_UMI.list[[theedge]] %>% dim %>% .[1]
+	cur.edge<-strsplit(theedge,"!") %>% unlist
+#	hESCdiff.beta.allcell.mygraph$nodes.data.x.justed
+	cur.edge.pos<-subset(hESCdiff.beta.allcell.mygraph$nodes.data.x.justed,nodes %in% cur.edge)
+	cur.edge.pos$nodes<-factor(cur.edge.pos$nodes,levels=cur.edge)
+	cur.edge.pos<-cur.edge.pos[order(cur.edge.pos$nodes),]
+	walk.unit.x<-(as.numeric(cur.edge.pos[2,c("x","y")])-as.numeric(cur.edge.pos[1,c("x","y")]))[1]/(bins-1)
+	walk.unit.y<-(as.numeric(cur.edge.pos[2,c("x","y")])-as.numeric(cur.edge.pos[1,c("x","y")]))[2]/(bins-1)
+	cur.bins.coordinates<-cur.edge.pos[1,c("x","y")]
+	for (i in 1:(bins-1))
+	{
+	tmp.xy<-c(cur.bins.coordinates[nrow(cur.bins.coordinates),1]+walk.unit.x,cur.bins.coordinates[nrow(cur.bins.coordinates),2]+walk.unit.y)
+	cur.bins.coordinates<-rbind(cur.bins.coordinates,tmp.xy)
+	}
+	cur.edge.edges.bin.data.withTreepos<-all.edges.bin.data.normed_UMI.list[[theedge]] %>% cbind(.,cur.bins.coordinates) %>% t
+	colnames(cur.edge.edges.bin.data.withTreepos)<-paste(theedge,colnames(cur.edge.edges.bin.data.withTreepos),sep="::")
+	all.edge.edges.bin.data.withTreepos<-cbind(all.edge.edges.bin.data.withTreepos,cur.edge.edges.bin.data.withTreepos)
+}
+datatoplot<-t(all.edge.edges.bin.data.withTreepos) %>% as.data.frame()
+## Tree plot example for any given gene
+ggplot(datatoplot)+aes_string("x","y",color="AFP")+geom_point()+scale_color_gradientn(colors=c("red","gold","white","steelblue","grey"),values=c(1,0.95,0.85,0.3,0),trans="log10")
+## Gene modules
+gene.cluster.forallbranchs<-patternning.pearson_forallbranch(intermediateDFs=datatoplot[,1:(ncol(datatoplot)-4)],top10.cutoff=0.01)
+all.edge.edges.bin.data.withTreepos.normed<-apply(datatoplot,2,function(x){x/sum(x)})
+data.frame(Top20mean=apply(datatoplot[,1:(ncol(datatoplot)-4)],2,function(x){mean(x[order(x,decreasing=T)][1:20])}),CV=apply(datatoplot[,1:(ncol(datatoplot)-4)],2,function(vector){(sd(vector))^2/mean(vector)})) -> Geneinfo.ontree
+Traininggenes<-subset(Geneinfo.ontree,Top20mean>0.05) %>% .[order(.$CV,decreasing=T),] %>% .[1:2000,]
+Traininggene.ontree.scaled<-datatoplot[,row.names(Traininggenes)] %>% apply(.,2,scale) #2020-6-22-a
+gene.clusters.k<-cluster::pam(as.dist(sqrt(2*(1-gene.cluster.forallbranchs[row.names(Traininggenes),row.names(Traininggenes)]))),k=64)
+##### Map the rest of genes using KNN
+cl<-gene.clusters.k$clustering
+Traininggene.ontree.scaled.mtx<-Traininggene.ontree.scaled %>% t
+test.genes<-subset(Geneinfo.ontree,Top20mean>0.05) %>% .[order(.$CV,decreasing=T),] %>% .[2001:nrow(.),] %>% row.names
+test.mtx<- datatoplot[,test.genes[test.genes %in% colnames(datatoplot)]] %>% apply(.,2,scale) %>% t
+test.cl<-class::knn(train=Traininggene.ontree.scaled.mtx,test=test.mtx,cl=cl,k=5)
+names(test.cl)<-row.names(test.mtx)
+tree.gene.clusters.all<-c(gene.clusters.k$clustering,test.cl)

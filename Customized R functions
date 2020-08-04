@@ -721,5 +721,122 @@ dist.matrix.prep.v3<-function(binary.primary,datainfo.col1=c("res.0.6","nUMI","S
 		return(list(part1.withoutdog=part1.withoutdog))
 	}
 
+}
 
+
+###############################################  makelayout    #################################################################
+### Introduction\    ## To dertermine the corrdinate of each cluster
+### Input\
+### Output\
+###  Example\
+### Function_define
+makelayout<-function(nodes.data,edges.data,manu.xaxis=nametransform,byy="V2")   #  V2 is based on new name system. V1 is based on original name system
+{
+	nodes.data<-cbind(nodes.data,x=0,y=0)
+	### First loop to order the dataframe
+	for (i in nrow(edges.data):1)
+	{
+		if(length(which(as.character(edges.data[,1])==as.character(edges.data[i,2])))>0)
+		{
+			change.idx<-min(which(as.character(edges.data[,1])==as.character(edges.data[i,2])))
+			if(change.idx<i)
+			{
+				tmp<-edges.data[i,]
+				edges.data[i,]<-edges.data[change.idx,]
+				edges.data[change.idx,]<-tmp
+			}
+
+		}
+	}
+
+	### Second loop to determine the y position of all the nodes
+	for (i in 1:nrow(edges.data))
+	{
+		start.pos<-which(nodes.data$nodes==as.character(edges.data[i,1])) %>% nodes.data[.,"y"]
+		print(paste(as.character(edges.data[i,1])," start y:",start.pos))
+		end.pos<-start.pos-edges.data[i,"distance"]
+		nodes.data[which(nodes.data$nodes==as.character(edges.data[i,2])),"y"] <-end.pos
+	}
+	merge(nodes.data,manu.xaxis,by.x="nodes",by.y=byy) %>% .[,c(1,2,6,4)] ->nodes.data.x.justed
+	colnames(nodes.data.x.justed)[3]<-"x"
+	merge(edges.data,nodes.data.x.justed[,c(1,3,4)],by.x="SeekToward.cluster.names",by.y="nodes") %>% merge(.,nodes.data.x.justed[,c(1,3,4)],by.x="SeekFrom.cluster.names",by.y="nodes") -> segment.data
+	treeplot<-ggplot(nodes.data.x.justed)+aes(x,y)+geom_point()+geom_text(data=nodes.data.x.justed,aes(label=nodes),vjust=-0.1)+geom_segment(data=segment.data,aes(x=x.x,y=y.x,xend=x.y,yend=y.y),arrow=arrow(length=unit(0.1,"inch")))
+	return(list(treeplot=treeplot,nodes.data.x.justed=nodes.data.x.justed,edges.data=edges.data,segment.data=segment.data))
+}
+
+####
+###Function definition
+###############################################  Get.pseudotime.byStage.pairing     #################################################################
+### Introduction\ This is the first function of gene_based_key_protocol,  the purpose is to calculate pseudotime for each cell according to tree knowledge based strategy
+### Input\  A seurat object that has been annotated by tree making algorithm
+### Output\   an object including 5 component. There are dataframes showing PC value as well as trajectory for each cell. Also there dataframes showing gene average value across different bins(usually using 40 bins)
+###  Example\      S4_S7.Betatraj.intermediateDFs.40<-Get.pseudotime.byStage(S4_S7.Betatraj.ob,trj.edge.cutoff=40)  #  note the edge.cutoff indicate the buttom line  of the cell number on the edge that is allowed.
+### Function_define
+
+Get.pseudotime.byStage.pairing<-function(pcawithinfo=hESCdiff.beta.allcell.pca.withinfo,edges.data=all.edges,object=hESCdiff.beta.allcell.seurate,PCnumber=10,nametransformfile=nametransform)
+{
+bin.data.normed_UMI.list<-list()
+for (i in 1:nrow(edges.data))
+{
+print(edges.data[i,4])
+object@data.info$Sample.trans<-cplyr::mapvalues(object@data.info$Sample,from=as.character(nametransformfile$originalname),to=as.character(nametransformfile$finalname))
+print(table(subset(object@data.info,Sample.trans %in% as.character(unlist(edges.data[i,c(1,2)])))$Sample.trans)) # To print the cell number in current pair
+binnumber=as.integer(10*edges.data[i,5]/min(edges.data$distance))
+cur.pair<-c(as.character(edges.data[i,1]),as.character(edges.data[i,2]))
+cur.cellnames<-object@data.info %>% cbind(.,cell=row.names(.)) %>% subset(.,Sample.trans %in% cur.pair) %>% .$cell
+if(length(cur.cellnames)/binnumber<50)
+{
+binnumber<-as.integer(length(cur.cellnames)/50)
+}
+cur.rawdata<-object@raw.data %>%  .[,cur.cellnames] %>% as.matrix
+trj.edge.cutoff<-49
+PCA.curpair<-subset(pcawithinfo,Sample.trans %in% cur.pair)
+PCA.curpair$Sample.trans<-factor(PCA.curpair$Sample.trans,levels=cur.pair)
+traj.info<-traj.make(PCA.curpair,PCnumber,colname="Sample.trans")
+traj.info<-traj.info[complete.cases(traj.info),]
+PCA.curpair.trajinfo<-Tomerge_v2(PCA.curpair,traj.info)
+PCA.curpair.trajinfo<-PCA.curpair.trajinfo[complete.cases(PCA.curpair.trajinfo),]
+PCA.curpair.trajinfo$pos<-as.numeric(as.character(PCA.curpair.trajinfo$pos))
+PCA.curpair.trajinfo<-cbind(PCA.curpair.trajinfo,cell=row.names(PCA.curpair.trajinfo))
+traj.ob.rawwithinfo<-t(cur.rawdata) %>% as.data.frame %>% cbind(.,cell=row.names(.)) %>% merge(.,PCA.curpair.trajinfo[,c("nUMI","pos","cell")],by="cell")
+traj.ob.rawwithinfo<-traj.ob.rawwithinfo[complete.cases(traj.ob.rawwithinfo),]
+raw.bin<-givebintag.2(traj.ob.rawwithinfo,ordername="pos",bin=binnumber,genenumbercut=trj.edge.cutoff)
+print(table(raw.bin$tag))
+bin.data<-as.data.frame(mydplyr(raw.bin[,-which(colnames(raw.bin) %in% c("nUMI","cell"))]))   #  bin.data is take the mean directly from raw UMI reads number
+bin.data.normed_UMI<-cbind(t(apply(bin.data,1,function(x){(x[2:(length(x)-2)])/sum(x[2:(length(x)-2)])*1000})),bin.data[,(ncol(bin.data)-2):ncol(bin.data)])
+bin.data.normed_UMI<-bin.data.normed_UMI[order(bin.data.normed_UMI$pos),]
+print(data.frame(bin.data.normed_UMI$pos,bin.data.normed_UMI$wdth))
+bin.data.normed_UMI.list<-c(bin.data.normed_UMI.list,list(bin.data.normed_UMI))
+}
+names(bin.data.normed_UMI.list)<-edges.data$identifier
+return(bin.data.normed_UMI.list)
+}
+
+###############################################  patternning.pearson_forallbranch     #################################################################
+### Introduction\   This is to cluster genes according to pattern on the full tree
+### Input\
+### Output\
+###  Example\
+### Function_define
+patternning.pearson_forallbranch<-function(intermediateDFs=datatoplot[,1:(ncol(datatoplot)-4)],top10.cutoff=0.01)
+{
+intermediateDFs[,apply(intermediateDFs,2,function(x){x[order(x,decreasing=T)][10]>top10.cutoff})] ->intermediateDFs.filtered
+subgenes<-colnames(intermediateDFs.filtered)
+psearson.score.accu.all<-matrix(nrow=length(subgenes),ncol=length(subgenes))
+colnames(psearson.score.accu.all)<-subgenes
+row.names(psearson.score.accu.all)<-subgenes
+i=1
+for(anchorgene in subgenes)
+{
+	print(i)
+	psearson.score.accu.anchor<-c()
+	for(currentgene in subgenes)
+		{
+			psearson.score.current<-cor(intermediateDFs[,anchorgene],intermediateDFs[,currentgene],method="pearson")
+			psearson.score.accu.anchor<-c(psearson.score.accu.anchor,psearson.score.current)
+		}
+psearson.score.accu.all[,anchorgene]<-psearson.score.accu.anchor
+	i=i+1
+}
+return(psearson.score.accu.all)
 }
