@@ -840,3 +840,117 @@ psearson.score.accu.all[,anchorgene]<-psearson.score.accu.anchor
 }
 return(psearson.score.accu.all)
 }
+
+##################################2333333233333333333333333333333333333333333333333##################################################################################################################
+traj.make<-function(pcdata,PCtouse,colname)
+{
+calculate.pos<-function(x,pre.cen=previous.center,next.cen=next.center,pre.trj=pre.traj.axis,cur.trj=cur.traj.axis,pre.mag=pre.traj.axis.mag,cur.mag=cur.traj.axis.mag) # this function is to calculate the position of an individual cell, either project to previous trajectory axis or current axis depending on the relative distance
+{
+	dist.pre<-sqrt(sum((x-previous.center)^2))   # Calculate the distance from a individual cell in current cluster to the center of previous center
+	dist.next<-sqrt(sum((x-next.center)^2))  # Calculate the distance from a individual cell in current cluster to the center of next center
+	pos.on.preaxis<-((as.numeric(x)-previous.center) %*% pre.trj)/pre.mag
+	pos.on.nextaxis<-((as.numeric(x)-current.center) %*% cur.trj)/cur.mag
+	if (pos.on.preaxis<pre.mag & pos.on.nextaxis<0)
+	{
+		return(list(pos.on.preaxis,"previous","clean"))
+	}else if(pos.on.preaxis>pre.mag & pos.on.nextaxis>0)
+	{
+		return(list(pos.on.nextaxis,"current","clean"))
+	}else if (pos.on.preaxis<pre.mag & pos.on.nextaxis>0)
+	{
+		if (dist.pre<dist.next)
+		{
+			return(list(pos.on.preaxis,"previous","bydistance"))
+		}else
+		{
+			return(list(pos.on.nextaxis,"current","bydistance"))
+		}
+	}else
+	{
+			return(list(NA,NA,NA))
+	}
+}
+
+for (i in 1:length(levels(pcdata[,colname])))
+{
+current.pcs<-subset(pcdata,get(colname)==levels(pcdata[,colname])[i])
+current.center<-colMeans(current.pcs[,1:PCtouse])
+
+if(i==1)
+{
+next.pcs<-subset(pcdata,get(colname)==levels(pcdata[,colname])[i+1])
+next.center<-colMeans(next.pcs[,1:PCtouse])
+traj.axis<-next.center-current.center
+traj.axis.mag<-sqrt(sum(traj.axis^2))
+first.positions<-apply((current.pcs[,1:PCtouse]),1,function(x){((as.numeric(x)-current.center) %*% traj.axis)/traj.axis.mag})
+starting.pos<-0
+pos.info.all<-data.frame(pos=first.positions,where="first",how="first")
+print(paste("i==",i,"Starting",collapse=""))
+}else if (i==length(levels(pcdata[,colname])))
+{
+	pre.pcs<-subset(pcdata,get(colname)==levels(pcdata[,colname])[i-1])
+	pre.center<-colMeans(pre.pcs[,1:PCtouse])
+	traj.axis<-current.center-pre.center
+	traj.axis.mag<-sqrt(sum(traj.axis^2))
+	last.positions<-apply((current.pcs[,1:PCtouse]),1,function(x){((as.numeric(x)-pre.center) %*% traj.axis)/traj.axis.mag})
+	last.positions<-data.frame(pos=last.positions,where="last",how="last")
+	last.positions[,"pos"]<-last.positions[,"pos"]+starting.pos
+	pos.info.all<-rbind(pos.info.all,last.positions)
+	print(paste("i==",i,"---all finished",collapse=""))
+}else
+{
+	previous.pcs<-subset(pcdata,get(colname)==levels(pcdata[,colname])[i-1])
+	previous.center<-colMeans(previous.pcs[,1:PCtouse])
+	next.pcs<-subset(pcdata,get(colname)==levels(pcdata[,colname])[i+1])
+	next.center<-colMeans(next.pcs[,1:PCtouse])
+	pre.traj.axis<-current.center-previous.center
+	pre.traj.axis.mag<-sqrt(sum(pre.traj.axis^2))
+	cur.traj.axis<-next.center-current.center
+	cur.traj.axis.mag<-sqrt(sum(traj.axis^2))
+	previous.staring.pos<-starting.pos
+	starting.pos<-starting.pos+pre.traj.axis.mag
+	cur.bi.positions<-apply(current.pcs[,1:PCtouse],1,calculate.pos)
+	cur.pos.info<-data.frame(pos=t(as.data.frame(lapply(cur.bi.positions,function(x){x[[1]]}))),where=t(as.data.frame(lapply(cur.bi.positions,function(x){x[[2]]}))),how=t(as.data.frame(lapply(cur.bi.positions,function(x){x[[3]]}))))
+	cur.pos.info[which(cur.pos.info$where=="previous"),"pos"]<-cur.pos.info[which(cur.pos.info$where=="previous"),"pos"]+previous.staring.pos
+	cur.pos.info[which(cur.pos.info$where=="current"),"pos"]<-cur.pos.info[which(cur.pos.info$where=="current"),"pos"]+starting.pos
+	pos.info.all<-rbind(pos.info.all,cur.pos.info)
+	print(paste("i==",i,"",collapse=""))
+}
+}
+
+return(pos.info.all)
+}
+
+
+###############################################  Get.pseudotime.byStage     #################################################################
+### Introduction\ This is the first function of gene_based_key_protocol,  the purpose is to calculate pseudotime for each cell according to tree knowledge based strategy
+### Input\  A seurat object that has been annotated by tree making algorithm
+### Output\   an object including 5 component. There are dataframes showing PC value as well as trajectory for each cell. Also there dataframes showing gene average value across different bins(usually using 40 bins)
+###  Example\      S4_S7.Betatraj.intermediateDFs.40<-Get.pseudotime.byStage(S4_S7.Betatraj.ob,trj.edge.cutoff=40)  #  note the edge.cutoff indicate the buttom line  of the cell number on the edge that is allowed.
+### Function_define
+Get.pseudotime.byStage<-function(object,columname="Sample",customize.stage.order=F,stage.order=c("S4.B_1_0","S5.all_1_0","S5.all_1_2","S6.A_0_1","S7.B_1_2"),PCnumber=10,binnumber=40,trj.edge.cutoff=80)
+{
+pcdata<-GetPCAcelldata_v2(object)
+if(customize.stage.order)
+{
+	pcdata[,columname]<-factor(pcdata[,columname],levels=stage.order)
+}
+traj.info<-traj.make(pcdata,PCnumber,colname="Sample")
+traj.info<-traj.info[complete.cases(traj.info),]
+pcdata.trajinfo<-Tomerge_v2(pcdata,traj.info)
+pcdata.trajinfo<-pcdata.trajinfo[complete.cases(pcdata.trajinfo),]
+pcdata.trajinfo$pos<-as.numeric(as.character(pcdata.trajinfo$pos))
+traj.ob.rawwithinfo<-Tomerge_v2(t(as.matrix(object@raw.data)),pcdata.trajinfo[,c("nUMI","pos")])
+traj.ob.rawwithinfo[,"pos"]<-as.numeric(as.character(traj.ob.rawwithinfo[,"pos"]))
+traj.ob.rawwithinfo[,"nUMI"]<-as.numeric(as.character(traj.ob.rawwithinfo[,"nUMI"]))
+traj.ob.rawwithinfo<-traj.ob.rawwithinfo[complete.cases(traj.ob.rawwithinfo),]
+raw.bin<-givebintag.2(traj.ob.rawwithinfo,ordername="pos",bin=binnumber,genenumbercut=trj.edge.cutoff)
+print(table(raw.bin$tag))
+bin.data<-as.data.frame(mydplyr(raw.bin))   #  bin.data is take the mean directly from raw UMI reads number
+bin.data.normed_UMI<-cbind(t(apply(bin.data,1,function(x){(x[2:(length(x)-3)])/as.numeric(x[(length(x)-2)])*1000})),bin.data[,(ncol(bin.data)-2):ncol(bin.data)])
+bin.data.normed_UMI<-bin.data.normed_UMI[order(bin.data.normed_UMI$pos),]
+
+print(data.frame(bin.data.normed_UMI$pos,bin.data.normed_UMI$wdth))
+return(list(pcdata.trj=pcdata.trajinfo,raw.trj=traj.ob.rawwithinfo,rawbin=raw.bin,bin.data=bin.data,bin.data.normed_UMI=bin.data.normed_UMI))
+}
+###End
